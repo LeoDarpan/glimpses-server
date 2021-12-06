@@ -1,5 +1,5 @@
 //Import all the modules that make up the app
-import express from 'express';
+import express, { response } from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
@@ -20,12 +20,12 @@ app.use(cors());
 //Every route in the postRoutes will start with the '/posts'
 app.use('/posts', postRoutes);
 
+app.get('/', (request, response) => response.send("Welcome to Glimpses API"))
+
 //Database connection and server initialisation
 const url = process.env.DATABASE_URL;//Database Url coming from .env
 const PORT = process.env.PORT || 5000;//Heroku will populate the environemtal variable called PORT
-mongoose.connect(url, { 
-    useNewUrlParser: true 
-})
+mongoose.connect(url, { useNewUrlParser: true })
     .then(() => app.listen(PORT, () => console.log(`Database Connected and Server is running on port: ${PORT}`)))
     .catch((error) => console.log(error.message));
 
