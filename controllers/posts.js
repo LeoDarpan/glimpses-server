@@ -36,7 +36,7 @@ export const getPosts = async (request, response) => {
 //Create a post in the database - function for localhost:5000/posts/create
 export const createPost = async (request, response) => {
     const post = request.body;
-    const newPost  = new PostMessage(post);
+    const newPost  = new PostMessage({...post, creator: request.userId, createdAt: new Date().toISOString()});
     try {
         await newPost.save();
         
@@ -69,12 +69,27 @@ export const deletePost = async (request, response) => {
 }
 //Like a post - function for localhost:5000/:id/likePost
 export const likePost = async (request, response) => {
+    console.log(request.userId);
     const { id } = request.params;
+
+    if(!request.userId) return response.json({ message: 'Unauthenticated!' });
 
     if(mongoose.Types.ObjectId.isValid(id)){
         const post = await PostMessage.findById(id);
-        const updatedPost = await PostMessage.findByIdAndUpdate(id, { likeCount: post.likeCount + 1 }, { new: true });
+        //Check if the user has already liked the post, his id would be found in the likes
+        const index = post.likes.findIndex((id) => id===String(request.userId)); 
+        //The result above would be -1 if the id is not there
+        if(index === -1){
+            //like the post
+            post.likes.push(request.userId);
+        }else{
+            //remove the like
+            post.likes = post.likes.filter((id) => id !== String(request.userId));
+        }
+        const updatedPost = await PostMessage.findByIdAndUpdate(id, post, { new: true });
 
         response.json(updatedPost);
+    }else{
+        return response.status(404).send("No post exists with the ID!");
     }
 }

@@ -7,7 +7,8 @@ dotenv.config();
 
 //Imported all the routes in the posts.js
 import postRoutes from './routes/posts.js';
-
+//Imported all the routes in the users.js
+import userRoutes from './routes/users.js';
 //App initialisation
 const app = express(); 
 
@@ -19,6 +20,8 @@ app.use(cors());
 
 //Every route in the postRoutes will start with the '/posts'
 app.use('/posts', postRoutes);
+//Every route in the userRoutes will start with the '/user'
+app.use('/users', userRoutes);
 
 app.get('/', (request, response) => response.send("Welcome to Glimpses API"))
 
