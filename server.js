@@ -20,7 +20,7 @@ app.use(cors());
 
 //Every route in the postRoutes will start with the '/posts'
 app.use('/posts', postRoutes);
-//Every route in the userRoutes will start with the '/user'
+//Every route in the userRoutes will start with the '/users'
 app.use('/users', userRoutes);
 
 app.get('/', (request, response) => response.send("Welcome to Glimpses API"))

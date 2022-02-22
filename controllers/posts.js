@@ -19,19 +19,58 @@ import PostMessage from '../models/postMessage.js';
 export const getPosts = async (request, response) => {
     //This is implemented using the try-catch model
     //Try runs on success and catch runs when there is some error!
-    try {
-        //Get all the posts from  the database. Add await because its asynchronous
-        const postMessages = await PostMessage.find();
-        //To make await work, make the function async
+    
+    const { page } = request.query;
 
+    try {
+        //Get all the posts from  the database as per the page number. Add await because its asynchronous
+        //Number of posts per page
+        const LIMIT = 8;
+        //Starting index of every page
+        const startIndex = LIMIT * (Number(page) - 1);
+        //Total number of posts
+        const total = await PostMessage.countDocuments({});
+
+
+        const posts = await PostMessage.find().sort({ _id: -1}).limit(LIMIT).skip(startIndex);
+
+        //To make await work, make the function async
         // console.log(postMessages);
 
-        response.status(200).json(postMessages);
+        response.status(200).json({data: posts, currentPage: Number(page), totalPages: Math.ceil(total / LIMIT)});
 
     } catch (error) {
         response.status(404).json({message: error.message});
     }
 }
+
+export const getPost = async (request, response) => {
+    const { id } = request.params;
+    try {
+        const post = await PostMessage.findById(id);
+
+        response.status(200).json(post);
+    } catch (error) {
+        response.status(404).json({message: error.message})
+    }
+}
+
+//Get the posts matching the search parameters
+export const getPostsBySearch = async (request, response) => {
+    const { searchQuery, tags } = request.query;
+    try {
+        const title = new RegExp(searchQuery, 'i');
+
+        const posts = await PostMessage.find({
+            $or: [{ title }, { tags: { $in: tags.split(',') } }]
+        }); 
+       
+        response.json({ data: posts })
+    } catch (error) {
+        response.status(404).json({message: "There is some error"});
+    }
+}
+
 
 //Create a post in the database - function for localhost:5000/posts/create
 export const createPost = async (request, response) => {
@@ -69,7 +108,6 @@ export const deletePost = async (request, response) => {
 }
 //Like a post - function for localhost:5000/:id/likePost
 export const likePost = async (request, response) => {
-    console.log(request.userId);
     const { id } = request.params;
 
     if(!request.userId) return response.json({ message: 'Unauthenticated!' });
