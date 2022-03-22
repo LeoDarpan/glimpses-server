@@ -3,7 +3,7 @@ import express from 'express';
 //In order to get the functions to work, they need to be imported to the routes file
 //The functions made in the controllers folder files are exported and are imported here.
 
-import { getPosts, getPost,  getPostsBySearch, createPost, updatePost, deletePost, likePost } from '../controllers/posts.js';
+import { getPosts, getPost,  getPostsBySearch, createPost, updatePost, deletePost, likePost, commentPost } from '../controllers/posts.js';
 import auth from '../middleware/auth.js';
 
 const router = express.Router();
@@ -37,5 +37,8 @@ router.patch('/:id/likePost', auth, likePost);
 
 //Get a specific post as per its _id
 router.get('/:id', getPost);
+
+//Add a comment
+router.post('/:id/commentPost', auth, commentPost);
 
 export default router; 

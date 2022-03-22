@@ -131,3 +131,21 @@ export const likePost = async (request, response) => {
         return response.status(404).send("No post exists with the ID!");
     }
 }
+
+export const commentPost = async (request, response) => {
+    //1. Get the id of the post and comment to be added from the request
+    const { id } = request.params;
+    const { value } = request.body;
+
+    //2. Get the post from the db
+    const post = await PostMessage.findById(id);
+    
+    //3. Add the comment to the comments field of the post
+    post.comments.push(value);
+
+    //4. Create an updated post and push to the db to replace the older one
+    const updatedPost = await PostMessage.findByIdAndUpdate(id, post, { new: true });
+
+    //5. Send the updated post to the frontend also
+    response.json(updatedPost);
+}

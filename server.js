@@ -15,6 +15,7 @@ const app = express();
 //Body parser
 app.use(express.json({ limit: '30mb', extended: true })); 
 app.use(express.urlencoded({ limit: '30mb', extended: true })); 
+
 //Cross origin resource sharing
 app.use(cors());
 
